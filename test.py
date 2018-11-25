@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import random
-
+import math
 import copy
 
 class go_bang:
@@ -17,8 +17,13 @@ class go_bang:
                 
         return pd.DataFrame(l,columns=['r','c','v'])
         
+    def how_many_moves(self):
+        df = self.data_structure()
+        df = df[df['v'] == 0]
+        return self.size * self.size - len(df)
     
-    def go(self,position,value):        
+    
+    def go(self,position,value): 
         self.board[position[0],position[1]] = value
         
     def who_is_next(self):
@@ -26,6 +31,12 @@ class go_bang:
             return -1
         else:
             return 1
+        
+    def who_is_last(self):
+        if self.board.sum() == 1:
+            return 1
+        else:
+            return -1
     
     def exist_5(self,array):
         i = 0
@@ -151,17 +162,127 @@ class go_bang:
                 loss = loss + 1
         
         print([x,y,v,win,loss])
-
+    
 
 
 class MCTS:
     def __init__(self, root):
         self.root = root
         
-
-class Nodo
         
 
+        
+        
+    def running(self,c):
+        
+        def run(node,c):
+            if not node.is_visited:
+                node.simulation()
+                node.update_stats(c)
+            elif node.is_termination():
+                node.simulation()
+                node.update_stats(c)
+            elif not node.has_leaves():
+                node.update_stats(c)
+            else:
+                child_node = node.select_child_node(c)
+                run(child_node,c)
+                node.update_stats(c)
+        
+        counter = 0
+        while counter < 200:
+            counter = counter + 1
+            run(self.root,c)
+            print('counter %s' % counter)
+            
+            
+            
+            
+        
+        
+        
+        
+        
+        
+
+class node:
+    def __init__(self, go_bang_state,who_wants_to_win,is_root,parent_visit_times):
+        self.is_root = is_root
+        self.parent_visit_times = parent_visit_times
+        self.state = go_bang_state
+        self.is_visited = False
+        self.win = 0            #win or loss is relative to who_wants_to_win
+        self.loss = 0
+        self.due = 0
+        self.visit_times = 0
+        self.who_is_next = self.state.who_is_next()
+        self.who_is_last = self.state.who_is_last()
+        self.who_wants_to_win = who_wants_to_win
+        self.leaves = []
+        self.score = -1
+        
+    def simulation(self):
+        print(self.state.how_many_moves())
+        self.is_visited = True
+        self.visit_times = self.visit_times + 1
+        
+        c1 = copy.deepcopy(self.state)
+        while c1.game_over() == 0:
+            c1.random_next_move()
+        if c1.game_over() == self.who_wants_to_win:
+            self.win = self.win + 1
+        elif c1.game_over() == 2:
+            self.due = self.due + 1
+        else:
+            self.loss = self.loss + 1
+        
+        if self.is_termination:
+            self.populate_leaves()
+            
+    def is_termination(self):
+        if self.state.game_over() != 0:
+            return True
+        else:
+            return False
+        
+    def has_leaves(self):
+        if len(self.leaves) > 0:
+            return True
+        else:
+            return False
+            
+    def populate_leaves(self):
+        df = self.state.data_structure()
+        df = df[df['v'] == 0].sample(frac=1)
+        for index, rows in df.iterrows():
+            c1 = copy.deepcopy(self.state)
+            c1.go([int(rows['r']), int(rows['c'])],c1.who_is_next())
+            self.leaves = self.leaves + [node(c1,self.who_wants_to_win,False,self.visit_times)]
+    
+    def select_child_node(self,c):
+        for leaf in self.leaves: 
+            leaf.parent_visit_times = self.visit_times
+            if not leaf.is_visited:
+                leaf.simulation()
+            leaf.update_stats(c)
+        self.leaves.sort(key = lambda x:x.score,reverse = True)
+        return self.leaves[0]
+
+    def update_stats(self,c):
+        self.win = sum(leaf.win for leaf in self.leaves) + self.win
+        self.loss = sum(leaf.loss for leaf in self.leaves) + self.loss
+        self.due = sum(leaf.due for leaf in self.leaves) + self.due
+        self.visit_times = sum(leaf.visit_times for leaf in self.leaves) + self.visit_times
+        
+        if self.is_root:
+            pass
+        else:
+            if self.who_wants_to_win == self.who_is_last:
+                self.score = self.win/self.visit_times + c*math.sqrt(math.log10(10)/self.parent_visit_times)
+            else:
+                self.score = self.loss/self.visit_times + c*math.sqrt(math.log10(10)/self.parent_visit_times)
+
+        
 
 a = go_bang(10)
 #a.go([8,3],-1)
@@ -170,13 +291,15 @@ a = go_bang(10)
 #a.go([5,6],-1)
 #a.go([4,7],-1)
 
+
 print(a.game_over())
 print(a.board)
 
 
+root = node(a,a.who_is_next,True,0)
+#root.simulation()
 
-
-
-
+mcts = MCTS(root)
+mcts.running(2)
 
 

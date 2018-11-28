@@ -173,34 +173,42 @@ class MCTS:
 
         
         
-    def running(self,c):
-        
-        def run(node,c):
-            if not node.is_visited:
-                node.simulation()
-                node.update_stats(c)
-            elif node.is_termination():
-                node.simulation()
-                node.update_stats(c)
-            elif not node.has_leaves():
-                node.update_stats(c)
-            else:
-                child_node = node.select_child_node(c)
-                run(child_node,c)
-                node.update_stats(c)
-        
+    def running(self,c):        
         counter = 0
         while counter < 200:
             counter = counter + 1
-            run(self.root,c)
-            print('counter %s' % counter)
+            print(counter)
+            self.run(self.root,c)
+
             
-            
-            
-            
+    def run(self,node,c):
+        if not node.is_visited:
+            node.simulation()
+            node.update_stats(c)
+            return
+        elif node.is_termination():
+            node.simulation()
+            node.update_stats(c)
+            return
+        elif not node.has_leaves():
+            node.update_stats(c)
+            return
+        else:
+            child_node = node.select_child_node(c)
+            self.run(child_node,c)
+            node.update_stats(c)            
         
+    def make_move(self,c):
+        child = self.root.select_child_node(c)
+        while not child.is_visited:
+            child = self.root.select_child_node(c)
         
+        df = self.root.state.data_structure().merge(child.state.data_structure(),on=['r','c'])
+        r = df[df['v_x']!=df['v_y']]['r'].iloc[0]
+        c = df[df['v_x']!=df['v_y']]['c'].iloc[0]
         
+        self.root = child
+        return [r,c]
         
         
         
@@ -222,7 +230,6 @@ class node:
         self.score = -1
         
     def simulation(self):
-        print(self.state.how_many_moves())
         self.is_visited = True
         self.visit_times = self.visit_times + 1
         
@@ -236,7 +243,7 @@ class node:
         else:
             self.loss = self.loss + 1
         
-        if self.is_termination:
+        if not self.is_termination():
             self.populate_leaves()
             
     def is_termination(self):
@@ -260,11 +267,11 @@ class node:
             self.leaves = self.leaves + [node(c1,self.who_wants_to_win,False,self.visit_times)]
     
     def select_child_node(self,c):
+        #print(self.state.how_many_moves())
         for leaf in self.leaves: 
             leaf.parent_visit_times = self.visit_times
             if not leaf.is_visited:
-                leaf.simulation()
-            leaf.update_stats(c)
+                return leaf
         self.leaves.sort(key = lambda x:x.score,reverse = True)
         return self.leaves[0]
 
@@ -285,21 +292,28 @@ class node:
         
 
 a = go_bang(10)
-#a.go([8,3],-1)
-#a.go([7,4],-1)
-#a.go([6,5],-1)
-#a.go([5,6],-1)
-#a.go([4,7],-1)
+a.go([0,1],-1)
+a.go([0,2],-1)
+a.go([0,3],-1)
+a.go([0,4],-1)
+
+a.go([9,1],1)
+a.go([9,2],1)
+a.go([9,3],1)
+a.go([9,4],1)
+#print(a.game_over())
+#print(a.board)
+#
+#
+def go_next(current_state):
+    root = node(current_state,current_state.who_is_next,True,0)
+
+    mcts = MCTS(root)
+    mcts.running(0.1)
+    position = mcts.make_move(0.1)
+    print(position)
+    print(mcts.root.state.board)
+    return position
 
 
-print(a.game_over())
-print(a.board)
-
-
-root = node(a,a.who_is_next,True,0)
-#root.simulation()
-
-mcts = MCTS(root)
-mcts.running(2)
-
-
+a.go(go_next(a),a.who_is_next())

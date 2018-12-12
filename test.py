@@ -3,6 +3,7 @@ import numpy as np
 import random
 import math
 import copy
+import time
 
 class go_bang:
     def __init__(self,size):
@@ -265,6 +266,7 @@ class node:
         self.last_move = last_move
         
     def simulation(self):
+        start = time.time()
         self.is_visited = True
         self.self_visit_times = self.self_visit_times + 1
         
@@ -280,7 +282,9 @@ class node:
         
         if not self.is_termination():
             self.populate_leaves()
-            
+        
+        end = time.time()
+        print(end-start)
     def is_termination(self):
         if self.state.game_over() != 0:
             return True

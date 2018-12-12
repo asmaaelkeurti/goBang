@@ -356,27 +356,29 @@ def go_next(current_state):
     return current_state
 
 
-root = node(a,a.who_is_next(),True,0,[])
-mcts = MCTS(root)
-mcts.running(1,200)
-r_df = mcts.stats()
-
-top_1 = r_df[(r_df['last_move_x'] == 9) & (r_df['last_move_y'] == 5)]['visit_times'].iloc[0]
-top_2 = r_df[(r_df['last_move_x'] == 9) & (r_df['last_move_y'] == 1)]['visit_times'].iloc[0]
-
-print([top_1,top_2,r_df['visit_times'].max()])
-counter = 200
-
-while not(top_1 == r_df['visit_times'].max() or top_2 == r_df['visit_times'].max()):
-    mcts.running(1,50)
-    r_df = mcts.stats()
-
-    top_1 = r_df[(r_df['last_move_x'] == 9) & (r_df['last_move_y'] == 5)]['visit_times'].iloc[0]
-    top_2 = r_df[(r_df['last_move_x'] == 9) & (r_df['last_move_y'] == 1)]['visit_times'].iloc[0]
+#root = node(a,a.who_is_next(),True,0,[])
+#mcts = MCTS(root)
+#mcts.running(1,200)
+#r_df = mcts.stats()
+#
+#top_1 = r_df[(r_df['last_move_x'] == 9) & (r_df['last_move_y'] == 5)]['visit_times'].iloc[0]
+#top_2 = r_df[(r_df['last_move_x'] == 9) & (r_df['last_move_y'] == 1)]['visit_times'].iloc[0]
+#
+#print([top_1,top_2,r_df['visit_times'].max()])
+#counter = 200
+#
+#while not(top_1 == r_df['visit_times'].max() or top_2 == r_df['visit_times'].max()):
+#    mcts.running(1,50)
+#    r_df = mcts.stats()
+#
+#    top_1 = r_df[(r_df['last_move_x'] == 9) & (r_df['last_move_y'] == 5)]['visit_times'].iloc[0]
+#    top_2 = r_df[(r_df['last_move_x'] == 9) & (r_df['last_move_y'] == 1)]['visit_times'].iloc[0]
+#    
+#    counter = counter + 50
+#    print([top_1,top_2,r_df['visit_times'].max()])
+#    print(counter)
     
-    counter = counter + 50
-    print([top_1,top_2,r_df['visit_times'].max()])
-    print(counter)
+    
 #root.simulation()
 #print(root.is_termination())
 #n1=[node for node in mcts.root.leaves if node.last_move==[9,5]][0]

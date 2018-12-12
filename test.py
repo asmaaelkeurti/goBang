@@ -129,11 +129,37 @@ class go_bang:
         
         
         return 0
+    
+    
         
+    
+    def possible_position(self):
+        df = self.data_structure()
+        
+        df_available = df[df['v'] == 0]
+        df_unavailable = df[df['v'] != 0]
+        
+        def is_close_enough(x,y):
+            for index, row in df_unavailable.iterrows():
+                distance = math.sqrt((x-row['r'])**2 + (y-row['c'])**2)
+                if distance < 3:
+                    return 1
+            return 0
+        
+        df_available['is_close'] = df_available[['r','c']].apply(lambda x : is_close_enough(*x),axis=1)
+        
+        df_available = df_available[df_available['is_close'] == 1]
+        
+        del df_available['is_close']
+        return df_available
+        
+        
+    
 
     def random_next_move(self):
         df = self.data_structure()
         df = df[df['v'] == 0]
+        #df = self.possible_position()
         rows = np.random.choice(df.index.values, 1)
         df = df.loc[rows]
         next_value = self.who_is_next()
@@ -268,7 +294,8 @@ class node:
             return False
             
     def populate_leaves(self):
-        df = self.state.data_structure()
+        #df = self.state.data_structure()
+        df = self.state.possible_position()
         df = df[df['v'] == 0].sample(frac=1)
         for index, rows in df.iterrows():
             c1 = copy.deepcopy(self.state)
@@ -331,7 +358,25 @@ def go_next(current_state):
 
 root = node(a,a.who_is_next(),True,0,[])
 mcts = MCTS(root)
+mcts.running(1,200)
+r_df = mcts.stats()
 
+top_1 = r_df[(r_df['last_move_x'] == 9) & (r_df['last_move_y'] == 5)]['visit_times'].iloc[0]
+top_2 = r_df[(r_df['last_move_x'] == 9) & (r_df['last_move_y'] == 1)]['visit_times'].iloc[0]
+
+print([top_1,top_2,r_df['visit_times'].max()])
+counter = 200
+
+while not(top_1 == r_df['visit_times'].max() or top_2 == r_df['visit_times'].max()):
+    mcts.running(1,50)
+    r_df = mcts.stats()
+
+    top_1 = r_df[(r_df['last_move_x'] == 9) & (r_df['last_move_y'] == 5)]['visit_times'].iloc[0]
+    top_2 = r_df[(r_df['last_move_x'] == 9) & (r_df['last_move_y'] == 1)]['visit_times'].iloc[0]
+    
+    counter = counter + 50
+    print([top_1,top_2,r_df['visit_times'].max()])
+    print(counter)
 #root.simulation()
 #print(root.is_termination())
 #n1=[node for node in mcts.root.leaves if node.last_move==[9,5]][0]

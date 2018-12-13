@@ -9,6 +9,7 @@ class go_bang:
     def __init__(self,size):
         self.size = size
         self.board = np.zeros((self.size,self.size))
+        self.last_move = [-1,-1]
     
     def data_structure(self):
         l = []
@@ -26,6 +27,7 @@ class go_bang:
     
     def go(self,position,value): 
         self.board[position[0],position[1]] = value
+        self.last_move = [position[0],position[1]]
         
     def who_is_next(self):
         if self.board.sum() == 1:
@@ -55,8 +57,42 @@ class go_bang:
 
         return 0
     
-    
     def game_over(self):
+        x,y = self.last_move[0],self.last_move[1]
+        if (x < 0 or y < 0):
+            return 0
+        
+        horizontal_list = []
+        upper_left_lower_right_list = []
+        lower_left_upper_right_list = []
+        vertical_list = []
+        #Upper left lower right
+        #
+        for i in range(-5,6):
+            if x+i > 0 and x+i < self.size:
+                horizontal_list = horizontal_list + [self.board[x+i,y]]
+                if y+i > 0 and y+i < self.size:
+                    upper_left_lower_right_list = upper_left_lower_right_list + [self.board[x+i,y+i]]
+                if y-i > 0 and y-i < self.size:
+                    lower_left_upper_right_list = lower_left_upper_right_list + [self.board[x+i,y-i]]
+            if y+i > 0 and y+i < self.size:
+                vertical_list = vertical_list + [self.board[x,y+i]]
+                
+        for l in [horizontal_list,upper_left_lower_right_list,lower_left_upper_right_list,vertical_list]:
+            if self.exist_5(l) != 0:
+                return self.exist_5(l)
+        
+        
+        
+        df = self.data_structure()
+        df = df[df['v'] == 0]
+        if len(df) == 0:
+            return 2    
+        
+        return 0
+        
+    
+    def game_over_1(self):
         #check vertical
         for i in range(self.size):
             if self.exist_5(self.board[:,i]) != 0:
@@ -266,7 +302,6 @@ class node:
         self.last_move = last_move
         
     def simulation(self):
-        start = time.time()
         self.is_visited = True
         self.self_visit_times = self.self_visit_times + 1
         
@@ -283,8 +318,7 @@ class node:
         if not self.is_termination():
             self.populate_leaves()
         
-        end = time.time()
-        print(end-start)
+        
     def is_termination(self):
         if self.state.game_over() != 0:
             return True
@@ -339,9 +373,11 @@ a.go([0,3],-1)
 a.go([0,4],-1)
 
 #a.go([9,1],1)
-a.go([9,2],1)
-a.go([9,3],1)
 a.go([9,4],1)
+a.go([8,4],1)
+a.go([7,4],1)
+a.go([6,4],1)
+a.go([5,4],1)
 #a.go([9,5],1)
 #print(a.game_over())
 #print(a.board)

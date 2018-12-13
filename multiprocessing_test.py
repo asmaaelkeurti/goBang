@@ -17,7 +17,7 @@ def mcts_running(mcts):
     return mcts
 
 if __name__ == '__main__':
-    a = go_bang(10)
+    a = go_bang(13)
 
     a.go([0,2],-1)
     a.go([0,3],-1)

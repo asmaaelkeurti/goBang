@@ -13,7 +13,7 @@ def f(x):
     return x*x
 
 def mcts_running(mcts):
-    mcts.running(1,150)
+    mcts.running(1,500)
     return mcts
 
 if __name__ == '__main__':
@@ -34,11 +34,11 @@ if __name__ == '__main__':
     
     mcts_list = [copy.deepcopy(mcts) for i in range(n_process)]
 #    
-#    with Pool(processes=n_process) as pool:
-#        result = pool.map(mcts_running, mcts_list)
-#
-#    
-#    m = merged_df(result[0].stats(),result[1].stats())
-#    for i in range(2,n_process):
-#        m = merged_df(m,result[i].stats())
+    with Pool(processes=n_process) as pool:
+        result = pool.map(mcts_running, mcts_list)
+
+    
+    m = merged_df(result[0].stats(),result[1].stats())
+    for i in range(2,n_process):
+        m = merged_df(m,result[i].stats())
     

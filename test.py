@@ -366,23 +366,25 @@ class node:
 
         
 
-a = go_bang(10)
+#a = go_bang(10)
 #a.go([0,1],-1)
-a.go([0,2],-1)
-a.go([0,3],-1)
-a.go([0,4],-1)
+#a.go([0,2],-1)
+#a.go([0,3],-1)
+#a.go([0,4],-1)
 
 #a.go([9,1],1)
-a.go([9,4],1)
-a.go([8,4],1)
-a.go([7,4],1)
-a.go([6,4],1)
-a.go([5,4],1)
+#a.go([9,4],1)
+#a.go([8,4],1)
+#a.go([7,4],1)
+#a.go([6,4],1)
+#a.go([5,4],1)
 #a.go([9,5],1)
 #print(a.game_over())
 #print(a.board)
 #
 #
+#print(a.game_over())
+
 def go_next(current_state):
     root = node(current_state,current_state.who_is_next(),True,0,[])
 

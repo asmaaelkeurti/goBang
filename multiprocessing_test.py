@@ -42,6 +42,5 @@ if __name__ == '__main__':
     m = merged_df(result[0].stats(),result[1].stats())
     for i in range(2,n_process):
         m = merged_df(m,result[i].stats())
-    
-#    mcts_list[0].running(0.5,100)
+
     

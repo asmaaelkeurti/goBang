@@ -382,6 +382,8 @@ class node:
 #print(a.board)
 #
 #
+#print(a.game_over())
+
 def go_next(current_state):
     root = node(current_state,current_state.who_is_next(),True,0,[])
 

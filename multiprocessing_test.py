@@ -1,5 +1,6 @@
 from multiprocessing import Pool
-from test import *
+from go_bang_game import *
+from MCTS import *
 import copy
 
 
@@ -13,7 +14,7 @@ def f(x):
     return x*x
 
 def mcts_running(mcts):
-    mcts.running(1,150)
+    mcts.running(0.5,200)
     return mcts
 
 if __name__ == '__main__':
@@ -30,15 +31,17 @@ if __name__ == '__main__':
     root = node(a,a.who_is_next(),True,0,[])
     mcts = MCTS(root)
     
-    n_process = 7
+    n_process = 16
     
     mcts_list = [copy.deepcopy(mcts) for i in range(n_process)]
 #    
-#    with Pool(processes=n_process) as pool:
-#        result = pool.map(mcts_running, mcts_list)
-#
-#    
-#    m = merged_df(result[0].stats(),result[1].stats())
-#    for i in range(2,n_process):
-#        m = merged_df(m,result[i].stats())
+    with Pool(processes=n_process) as pool:
+        result = pool.map(mcts_running, mcts_list)
+
+    
+    m = merged_df(result[0].stats(),result[1].stats())
+    for i in range(2,n_process):
+        m = merged_df(m,result[i].stats())
+    
+#    mcts_list[0].running(0.5,100)
     
